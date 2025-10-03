@@ -1,0 +1,82 @@
+--// Hub Xezeh12
+--// UI con 3 opciones: Bailar, Fly, Lag
+
+local Xezeh12 = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+
+Xezeh12.Name = "Xezeh12"
+Xezeh12.Parent = game.CoreGui
+
+Main.Name = "Main"
+Main.Parent = Xezeh12
+Main.Size = UDim2.new(0, 250, 0, 200)
+Main.Position = UDim2.new(0.35, 0, 0.3, 0)
+Main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+
+UICorner.Parent = Main
+
+-- Crear botones
+local function createButton(name, text, posY, func)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Parent = Main
+    btn.Size = UDim2.new(0, 230, 0, 40)
+    btn.Position = UDim2.new(0, 10, 0, posY)
+    btn.Text = text
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.MouseButton1Click:Connect(func)
+end
+
+-- Función Bailar (usando animaciones normales)
+createButton("Bailar", "Bailar", 10, function()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        local anim = Instance.new("Animation")
+        anim.AnimationId = "rbxassetid://5917459362" -- Ejemplo animación de baile
+        local track = humanoid:LoadAnimation(anim)
+        track:Play()
+    end
+end)
+
+-- Función Fly
+local flying = false
+local speed = 50
+createButton("Fly", "Activar Fly", 60, function()
+    flying = not flying
+    local plr = game.Players.LocalPlayer
+    local char = plr.Character or plr.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    local bodyVel = Instance.new("BodyVelocity")
+    bodyVel.MaxForce = Vector3.new(4000, 4000, 4000)
+    bodyVel.Velocity = Vector3.zero
+
+    if flying then
+        bodyVel.Parent = hrp
+        game:GetService("RunService").Heartbeat:Connect(function()
+            if flying then
+                local moveDir = plr.Character.Humanoid.MoveDirection
+                bodyVel.Velocity = moveDir * speed
+            end
+        end)
+    else
+        if hrp:FindFirstChild("BodyVelocity") then
+            hrp.BodyVelocity:Destroy()
+        end
+    end
+end)
+
+-- Función Lag Fake (simular lag visual)
+createButton("Lag", "Activar Lag Fake", 110, function()
+    local char = game.Players.LocalPlayer.Character
+    if not char then return end
+    for i=1,5 do
+        task.delay(i*0.2, function()
+            char:TranslateBy(Vector3.new(0,0,math.random(-2,2)))
+        end)
+    end
+end)
