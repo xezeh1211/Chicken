@@ -1,0 +1,112 @@
+-- Hidden Hub - Optimizado para Delta (Mobile)
+-- by Marlon (para ejecutar en <5s)
+
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
+
+-- Eliminar menú previo si existe
+pcall(function()
+    local prev = game:GetService("CoreGui"):FindFirstChild("HiddenHubDelta")
+    if prev then prev:Destroy() end
+end)
+
+-- Crear GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "HiddenHubDelta"
+gui.ResetOnSpawn = false
+pcall(function() gui.Parent = game:GetService("CoreGui") end)
+if not gui.Parent then gui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,300,0,380)
+frame.Position = UDim2.new(0.5,-150,0.5,-190)
+frame.BackgroundColor3 = Color3.fromRGB(12,18,30)
+frame.Parent = gui
+frame.Active = true
+pcall(function() frame.Draggable = true end)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1,0,0,40)
+title.BackgroundColor3 = Color3.fromRGB(20,30,50)
+title.Text = "Hidden Hub (Delta)"
+title.TextColor3 = Color3.fromRGB(230,240,255)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+
+local scroll = Instance.new("ScrollingFrame", frame)
+scroll.Size = UDim2.new(1,-10,1,-50)
+scroll.Position = UDim2.new(0,5,0,45)
+scroll.BackgroundTransparency = 1
+scroll.CanvasSize = UDim2.new(0,0,0,400)
+scroll.ScrollBarThickness = 6
+
+local list = Instance.new("UIListLayout", scroll)
+list.SortOrder = Enum.SortOrder.LayoutOrder
+list.Padding = UDim.new(0,6)
+
+local function notify(msg)
+    pcall(function()
+        StarterGui:SetCore("SendNotification", {
+            Title = "Hidden Hub",
+            Text = msg,
+            Duration = 3
+        })
+    end)
+end
+
+local function addButton(text, fn)
+    local btn = Instance.new("TextButton", scroll)
+    btn.Size = UDim2.new(1,0,0,40)
+    btn.Text = text
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextColor3 = Color3.fromRGB(240,245,255)
+    btn.BackgroundColor3 = Color3.fromRGB(28,40,68)
+    btn.MouseButton1Click:Connect(fn)
+    local uic = Instance.new("UICorner", btn)
+    uic.CornerRadius = UDim.new(0,8)
+end
+
+-- Opciones
+addButton("1. Buscar vendaje", function() notify("Encontraste 2 vendajes ✔️") end)
+addButton("2. Buscar comida", function() notify("Hallaste manzana 🍎 y lata 🥫") end)
+addButton("3. Abrir cofre", function() notify("Cofre cerrado 🔒, necesitas llave") end)
+addButton("4. ESP amigos azul", function()
+    notify("ESP activado (azul)")
+    for _,pl in ipairs(Players:GetPlayers()) do
+        if pl~=LocalPlayer and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") then
+            if not pl.Character:FindFirstChild("HubTag") then
+                local bb=Instance.new("BillboardGui")
+                bb.Name="HubTag"
+                bb.Adornee=pl.Character.HumanoidRootPart
+                bb.Size=UDim2.new(0,100,0,30)
+                bb.AlwaysOnTop=true
+                bb.Parent=pl.Character
+                local lbl=Instance.new("TextLabel",bb)
+                lbl.Size=UDim2.new(1,0,1,0)
+                lbl.BackgroundTransparency=1
+                lbl.Text=pl.Name
+                lbl.TextColor3=Color3.fromRGB(80,160,255)
+                lbl.Font=Enum.Font.GothamBold
+                lbl.TextScaled=true
+                delay(8,function() if bb.Parent then bb:Destroy() end end)
+            end
+        end
+    end
+end)
+addButton("5. Buscar madera", function() notify("Recolectaste +8 de madera 🌲") end)
+addButton("6. Linterna local", function()
+    local c=LocalPlayer.Character
+    if c and c:FindFirstChild("Head") then
+        if not c.Head:FindFirstChild("HubLight") then
+            local light=Instance.new("PointLight",c.Head)
+            light.Name="HubLight"
+            light.Range=20
+            light.Brightness=2
+            notify("Linterna ON 💡 (60s)")
+            delay(60,function() if light.Parent then light:Destroy() end end)
+        else notify("Ya tienes linterna activa") end
+    end
+end)
+addButton("7. Noclip simulado", function() notify("Modo noclip simulado 🌀") end)
+addButton("8. Kill simulado", function() notify("Acción de combate simulada ⚔
